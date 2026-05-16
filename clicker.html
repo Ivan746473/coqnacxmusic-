@@ -3,67 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CMMu Tapper</title>
+    <title>CMMu Tapper Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { user-select: none; -webkit-tap-highlight-color: transparent; background: radial-gradient(circle at center, #1f1a3a 0%, #0d0b18 100%); }
-        .coin-active:active { transform: scale(0.95); }
+        body {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            background-color: #050505; /* Глубокий черный */
+            color: white;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* ЖИВОЙ ФОН */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 15s infinite alternate;
+        }
+        .blob-1 { width: 300px; height: 300px; background: rgba(34, 197, 94, 0.4); top: -10%; left: -10%; }
+        .blob-2 { width: 400px; height: 400px; background: rgba(16, 185, 129, 0.3); bottom: 10%; right: -20%; animation-delay: -5s; }
+        .blob-3 { width: 250px; height: 250px; background: rgba(6, 95, 70, 0.5); top: 40%; left: 30%; animation-delay: -10s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 50px) scale(1.1); }
+            100% { transform: translate(-30px, 20px) scale(0.9); }
+        }
+
+        /* АНИМАЦИЯ МОНЕТЫ */
+        .coin-active:active { transform: scale(0.92); }
+        
+        /* КРАСИВЫЕ КАРТОЧКИ МАГАЗИНА */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        /* СКРЫТИЕ ВКЛАДОК */
+        .hidden-tab { display: none !important; }
     </style>
 </head>
-<body class="text-white h-screen flex flex-col justify-between p-6 overflow-hidden">
+<body class="h-screen flex flex-col relative">
 
-    <div class="flex flex-col items-center mt-8">
-        <div class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-full border border-yellow-500/20">
-            <i data-lucide="coins" class="w-6 h-6 text-yellow-400"></i>
-            <span class="text-xs font-semibold uppercase tracking-wider text-yellow-400/80">Баланс</span>
-        </div>
-        <h1 id="score" class="text-5xl font-black mt-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-500">0</h1>
-    </div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 
-    <div class="flex justify-center items-center my-auto relative">
-        <div class="absolute w-72 h-72 bg-yellow-500/10 rounded-full blur-3xl"></div>
-        <div id="coin" class="w-64 h-64 rounded-full bg-gradient-to-b from-yellow-300 via-yellow-500 to-amber-600 p-3 shadow-[0_0_50px_rgba(245,158,11,0.4)] cursor-pointer transition-transform duration-75 coin-active flex items-center justify-center relative z-10">
-            <div class="w-full h-full rounded-full bg-gradient-to-t from-amber-500 to-yellow-400 border-4 border-yellow-200/50 flex items-center justify-center shadow-inner">
-                <span class="text-6xl font-black text-amber-950">C</span>
+    <div class="flex-1 overflow-y-auto pb-24 relative z-10">
+        
+        <div id="game-view" class="h-full flex flex-col justify-between p-6">
+            
+            <div class="flex flex-col items-center mt-4">
+                <div class="flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-3">
+                    <i data-lucide="trophy" class="w-4 h-4 text-green-400"></i>
+                    <span id="league-text" class="text-xs font-semibold text-green-400/80">Новичок</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <img src="https://bbxrdhhhdpdthowvocny.supabase.co/storage/v1/object/public/music/lv_0_20260516190248.jpg" class="w-10 h-10 rounded-full border-2 border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]">
+                    <h1 id="score" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-green-400 to-emerald-500">0</h1>
+                </div>
+            </div>
+
+            <div class="flex justify-center items-center my-auto">
+                <div class="relative w-72 h-72 rounded-full flex items-center justify-center">
+                    <div class="absolute w-full h-full bg-green-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                    <img id="coin" src="https://bbxrdhhhdpdthowvocny.supabase.co/storage/v1/object/public/music/lv_0_20260516190248.jpg" 
+                         class="w-64 h-64 object-cover rounded-[3rem] shadow-[0_0_40px_rgba(34,197,94,0.3)] cursor-pointer transition-transform duration-75 coin-active relative z-10 border-4 border-green-500/30">
+                </div>
+            </div>
+
+            <div class="w-full mx-auto glass-card p-4 rounded-2xl">
+                <div class="flex justify-between text-sm font-medium mb-2 px-1">
+                    <div class="flex items-center gap-1.5 text-green-400">
+                        <i data-lucide="zap" class="w-4 h-4 fill-green-400"></i>
+                        <span>Энергия</span>
+                    </div>
+                    <span id="energy-text" class="font-bold text-white">100/100</span>
+                </div>
+                <div class="w-full h-3 bg-black/50 rounded-full overflow-hidden p-[2px]">
+                    <div id="energy-bar" class="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all duration-100" style="width: 100%"></div>
+                </div>
             </div>
         </div>
+
+        <div id="shop-view" class="h-full flex flex-col p-6 hidden-tab">
+            <h2 class="text-3xl font-black text-center mt-4 mb-2 text-green-400">Бусты</h2>
+            <p class="text-center text-sm text-gray-400 mb-6">Прокачай свой заработок</p>
+
+            <div class="space-y-4">
+                
+                <div class="glass-card p-4 rounded-2xl flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center border border-green-500/20">
+                            <i data-lucide="hand" class="w-6 h-6 text-green-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Мультитап</h3>
+                            <p id="multitap-desc" class="text-xs text-gray-400">+1 монета за клик</p>
+                            <div class="flex items-center gap-1 mt-1">
+                                <img src="https://bbxrdhhhdpdthowvocny.supabase.co/storage/v1/object/public/music/lv_0_20260516190248.jpg" class="w-4 h-4 rounded-full">
+                                <span id="multitap-cost" class="font-bold text-green-300">100</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="buy-multitap" class="bg-green-500 hover:bg-green-400 text-black font-bold py-2 px-4 rounded-xl transition-colors active:scale-95">Купить</button>
+                </div>
+
+                <div class="glass-card p-4 rounded-2xl flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center border border-green-500/20">
+                            <i data-lucide="battery-charging" class="w-6 h-6 text-green-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Батарея</h3>
+                            <p id="battery-desc" class="text-xs text-gray-400">+50 к макс. энергии</p>
+                            <div class="flex items-center gap-1 mt-1">
+                                <img src="https://bbxrdhhhdpdthowvocny.supabase.co/storage/v1/object/public/music/lv_0_20260516190248.jpg" class="w-4 h-4 rounded-full">
+                                <span id="battery-cost" class="font-bold text-green-300">200</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="buy-battery" class="bg-green-500 hover:bg-green-400 text-black font-bold py-2 px-4 rounded-xl transition-colors active:scale-95">Купить</button>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
-    <div class="w-full max-w-sm mx-auto mb-6 bg-black/40 p-4 rounded-2xl border border-white/5">
-        <div class="flex justify-between text-sm font-medium mb-2 px-1">
-            <div class="flex items-center gap-1.5 text-cyan-400"><i data-lucide="zap" class="w-4 h-4 fill-cyan-400"></i><span>Энергия</span></div>
-            <span id="energy-text" class="font-bold">100/100</span>
+    <nav class="absolute bottom-0 w-full glass-card border-t-0 rounded-t-3xl px-6 py-3 pb-6 flex justify-around z-50">
+        <div id="btn-game" class="flex flex-col items-center gap-1 cursor-pointer text-green-400">
+            <i data-lucide="pickaxe" class="w-6 h-6"></i>
+            <span class="text-xs font-medium">Тап</span>
         </div>
-        <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden p-[2px]">
-            <div id="energy-bar" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-100" style="width: 100%"></div>
+        <div id="btn-shop" class="flex flex-col items-center gap-1 cursor-pointer text-gray-500 hover:text-green-400 transition-colors">
+            <i data-lucide="rocket" class="w-6 h-6"></i>
+            <span class="text-xs font-medium">Бусты</span>
         </div>
-    </div>
+    </nav>
 
     <script>
-        if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.expand(); }
+        // Инициализация Telegram
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.expand();
+            window.Telegram.WebApp.disableVerticalSwipes();
+        }
         lucide.createIcons();
 
-        let score = 0; let energy = 100; const maxEnergy = 100;
+        // 1. НАСТРОЙКИ И СОХРАНЕНИЯ (LOCAL STORAGE)
+        let state = {
+            score: 0,
+            energy: 100,
+            maxEnergy: 100,
+            tapValue: 1,
+            multitapLevel: 1,
+            batteryLevel: 1,
+            lastSaveTime: Date.now()
+        };
+
+        // Загрузка сохранений
+        const savedState = localStorage.getItem('cmmuTapperSave');
+        if (savedState) {
+            state = { ...state, ...JSON.parse(savedState) };
+            
+            // Расчет энергии, пока игрока не было в приложении!
+            const timePassedMs = Date.now() - state.lastSaveTime;
+            const secondsPassed = Math.floor(timePassedMs / 1000);
+            const energyToAdd = secondsPassed * 1; // 1 энергия в секунду
+            state.energy = Math.min(state.maxEnergy, state.energy + energyToAdd);
+        }
+
+        // Функция сохранения
+        function saveGame() {
+            state.lastSaveTime = Date.now();
+            localStorage.setItem('cmmuTapperSave', JSON.stringify(state));
+        }
+
+        // Элементы
         const scoreEl = document.getElementById('score');
         const coinEl = document.getElementById('coin');
         const energyBar = document.getElementById('energy-bar');
         const energyText = document.getElementById('energy-text');
+        const leagueText = document.getElementById('league-text');
 
+        // Элементы магазина
+        const mtCostEl = document.getElementById('multitap-cost');
+        const batCostEl = document.getElementById('battery-cost');
+        const mtLevelEl = document.getElementById('multitap-desc');
+        const batLevelEl = document.getElementById('battery-desc');
+
+        // 2. ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
+        function updateUI() {
+            scoreEl.textContent = state.score.toLocaleString();
+            
+            const percent = (state.energy / state.maxEnergy) * 100;
+            energyBar.style.width = `${percent}%`;
+            energyText.textContent = `${state.energy}/${state.maxEnergy}`;
+
+            // Лиги
+            if(state.score < 1000) leagueText.textContent = "Новичок";
+            else if(state.score < 5000) leagueText.textContent = "Меломан";
+            else if(state.score < 15000) leagueText.textContent = "Диджей";
+            else leagueText.textContent = "Продюсер";
+
+            // Цены в магазине
+            mtCostEl.textContent = getMultitapCost();
+            batCostEl.textContent = getBatteryCost();
+            mtLevelEl.textContent = `Уровень ${state.multitapLevel} (+${state.tapValue} за тап)`;
+            batLevelEl.textContent = `Уровень ${state.batteryLevel} (${state.maxEnergy} макс.)`;
+        }
+
+        // 3. ЛОГИКА ТАПА
         coinEl.addEventListener('pointerdown', (e) => {
-            if (energy > 0) {
-                score += 1; scoreEl.textContent = score.toLocaleString();
-                energy -= 1; updateEnergyUI();
-                createFloatingText(e.clientX, e.clientY);
+            if (state.energy >= state.tapValue) {
+                // Вибрация телефона (если поддерживается Телеграмом)
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                }
+
+                state.score += state.tapValue;
+                state.energy -= state.tapValue;
+                
+                updateUI();
+                createFloatingText(e.clientX, e.clientY, state.tapValue);
+                saveGame();
+            } else {
+                coinEl.classList.add('animate-bounce');
+                setTimeout(() => coinEl.classList.remove('animate-bounce'), 200);
             }
         });
 
-        function createFloatingText(x, y) {
+        // Всплывающие цифры
+        function createFloatingText(x, y, value) {
             const text = document.createElement('div');
-            text.textContent = '+1';
-            text.className = 'absolute text-2xl font-black text-yellow-300 pointer-events-none z-50';
-            text.style.left = `${x - 15}px`; text.style.top = `${y - 30}px`; text.style.position = 'fixed';
+            text.textContent = `+${value}`;
+            text.className = 'absolute text-2xl font-black text-green-300 pointer-events-none z-50';
+            text.style.left = `${x - 15}px`;
+            text.style.top = `${y - 30}px`;
+            text.style.position = 'fixed';
             document.body.appendChild(text);
             
             let opacity = 1; let currentY = y - 30;
@@ -74,13 +258,68 @@
             }, 16);
         }
 
-        function updateEnergyUI() {
-            const percent = (energy / maxEnergy) * 100;
-            energyBar.style.width = `${percent}%`;
-            energyText.textContent = `${energy}/${maxEnergy}`;
-        }
+        // 4. МАГАЗИН И БУСТЫ
+        function getMultitapCost() { return state.multitapLevel * 100; }
+        function getBatteryCost() { return state.batteryLevel * 200; }
 
-        setInterval(() => { if (energy < maxEnergy) { energy += 1; updateEnergyUI(); } }, 1000);
+        document.getElementById('buy-multitap').addEventListener('click', () => {
+            const cost = getMultitapCost();
+            if (state.score >= cost) {
+                state.score -= cost;
+                state.multitapLevel += 1;
+                state.tapValue += 1; // Усиливаем тап
+                updateUI();
+                saveGame();
+            } else {
+                alert("Не хватает монет!");
+            }
+        });
+
+        document.getElementById('buy-battery').addEventListener('click', () => {
+            const cost = getBatteryCost();
+            if (state.score >= cost) {
+                state.score -= cost;
+                state.batteryLevel += 1;
+                state.maxEnergy += 50; // Увеличиваем бак энергии
+                updateUI();
+                saveGame();
+            } else {
+                alert("Не хватает монет!");
+            }
+        });
+
+        // 5. НАВИГАЦИЯ (ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ)
+        const gameView = document.getElementById('game-view');
+        const shopView = document.getElementById('shop-view');
+        const btnGame = document.getElementById('btn-game');
+        const btnShop = document.getElementById('btn-shop');
+
+        btnGame.addEventListener('click', () => {
+            gameView.classList.remove('hidden-tab');
+            shopView.classList.add('hidden-tab');
+            btnGame.classList.replace('text-gray-500', 'text-green-400');
+            btnShop.classList.replace('text-green-400', 'text-gray-500');
+        });
+
+        btnShop.addEventListener('click', () => {
+            shopView.classList.remove('hidden-tab');
+            gameView.classList.add('hidden-tab');
+            btnShop.classList.replace('text-gray-500', 'text-green-400');
+            btnGame.classList.replace('text-green-400', 'text-gray-500');
+        });
+
+        // РЕГЕНЕРАЦИЯ ЭНЕРГИИ КАЖДУЮ СЕКУНДУ
+        setInterval(() => {
+            if (state.energy < state.maxEnergy) {
+                state.energy = Math.min(state.maxEnergy, state.energy + 1); // Восстанавливаем по 1 ед.
+                updateUI();
+                saveGame(); // Сохраняем в фоне
+            }
+        }, 1000);
+
+        // Первый запуск UI
+        updateUI();
+
     </script>
 </body>
 </html>
